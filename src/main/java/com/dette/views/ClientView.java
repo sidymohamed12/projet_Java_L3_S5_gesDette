@@ -29,7 +29,6 @@ public class ClientView extends ViewImplement<Client> implements IClientView {
         client.setAdresse(scanner.nextLine());
         System.out.println("entrer son telephone : ");
         client.setTelephone(scanner.nextLine());
-        client.onPrePersist();
         return client;
     }
 
@@ -54,11 +53,10 @@ public class ClientView extends ViewImplement<Client> implements IClientView {
             user.setPassword(scanner.nextLine());
             user.setRole(Role.client);
             user.setEtat(true);
-            user.onPrePersist();
+            user.setClient(client);
             userService.create(user);
             // ---
             client.setUser(user);
-            client.onPreUpdatet();
             clientService.modifier(client);
         }
 

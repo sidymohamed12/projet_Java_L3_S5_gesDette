@@ -15,6 +15,7 @@ public class ClientService implements IClientService {
 
     @Override
     public void create(Client cl) {
+        cl.onPrePersist();
         clientRepository.insert(cl);
     }
 
@@ -35,6 +36,7 @@ public class ClientService implements IClientService {
 
     @Override
     public void modifier(Client client) {
+        client.onPreUpdated();
         clientRepository.update(client);
     }
 }

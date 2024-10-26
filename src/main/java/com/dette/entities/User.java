@@ -24,7 +24,7 @@ public class User extends AbstractEntity {
     @Column(length = 60)
     private String password;
 
-    @Convert(converter = RoleConvert.class) 
+    @Convert(converter = RoleConvert.class)
     @Column(name = "roleId")
     private Role role;
 

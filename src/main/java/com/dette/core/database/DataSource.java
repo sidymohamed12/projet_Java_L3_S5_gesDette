@@ -13,11 +13,7 @@ public interface DataSource<T> {
 
     int executeUpdate(String query, T value);
 
-    // int executeUpdate() throws SQLException;
-
     ResultSet executeQuery(String query) throws SQLException;
-
-    // ResultSet executeQuery() throws SQLException;
 
     void initPreparedStatement(String sql) throws SQLException;
 

@@ -18,9 +18,12 @@ public abstract class RepositoryBDImpl<T> extends DataSourceImpl<T> implements R
     protected String colomnSelectBy;
     protected Class<T> clazz;
     protected String[] colones;
+
     public RepositoryBDImpl(UserRepositoryBD userRepository, ClientRepositoryBD clientRepository,
-                             ArticleRepositoryBD articleRepositoryBD, DetteRepositoryBD detteRepositoryBD) {
+            ArticleRepositoryBD articleRepositoryBD, DetteRepositoryBD detteRepositoryBD) {
+
         super(userRepository, clientRepository, articleRepositoryBD, detteRepositoryBD);
+
     }
 
     // SQL statement pour debug
@@ -92,7 +95,7 @@ public abstract class RepositoryBDImpl<T> extends DataSourceImpl<T> implements R
             Method getIdMethod = value.getClass().getMethod("getId");
             String query = generateSql("UPDATE", tableName, colones, "id", getIdMethod.invoke(value));
             executeUpdate(query, value);
-            // System.out.println("Executing SQL: " + ps.toString());
+            System.out.println("Executing SQL: " + ps.toString());
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }

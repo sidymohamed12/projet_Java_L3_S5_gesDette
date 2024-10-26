@@ -17,6 +17,7 @@ public class UserService implements IUserService {
     @Override
     public void create(User user) {
         user.setPassword(userRepository.hashPassword(user.getPassword()));
+        user.onPrePersist();
         userRepository.insert(user);
     }
 
@@ -37,11 +38,12 @@ public class UserService implements IUserService {
 
     @Override
     public void modifier(User user) {
+        user.onPreUpdated();
         userRepository.update(user);
     }
 
     @Override
     public User connexion(String login, String password) {
-       return userRepository.authentification(login, password);
+        return userRepository.authentification(login, password);
     }
 }

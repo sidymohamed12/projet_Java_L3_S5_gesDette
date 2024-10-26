@@ -1,6 +1,8 @@
 package com.dette.views;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 
 import com.dette.core.ViewImplement;
@@ -8,6 +10,7 @@ import com.dette.entities.Article;
 import com.dette.entities.Client;
 import com.dette.entities.Detail;
 import com.dette.entities.Dette;
+import com.dette.entities.UserConnect;
 import com.dette.enums.Etat;
 import com.dette.enums.Role;
 import com.dette.services.servicespe.IArticleService;
@@ -33,20 +36,20 @@ public class DetteView extends ViewImplement<Dette> implements IDetteView {
     public Dette saisie() {
         Dette dette = new Dette();
         dette.setDate(LocalDateTime.now());
-        dette.setEtatD(Etat.encours);
+        if (UserConnect.getUserConnecte().getRole() == Role.boutiquier) {
+            dette.setEtatD(Etat.accepter);
+        } else {
+            dette.setEtatD(Etat.encours);
+        }
         dette.setMontantVerser(0.0);
         dette.setMontantRestant(dette.getMontant());
         dette.setMontant(0.0);
         dette.setArchiver(false);
-        dette.onPrePersist();
         return dette;
     }
 
     @Override
-    public void createDetteClient(Client client) {
-        Dette dette = saisie();
-        dette.setClientD(client);
-        client.addDettes(dette);
+    public void createDetteClient(Dette dette) {
         do {
             articleService.findAll()
                     .stream()
@@ -56,31 +59,51 @@ public class DetteView extends ViewImplement<Dette> implements IDetteView {
             System.out.println("Choisissez l'article par son ref : ");
             Article article = articleService.getBy(scanner.nextLine());
             System.out.println(article);
-            int qte;
 
-            do {
-                System.out.println("Choisissez la quantité de l'article");
-                qte = scanner.nextInt();
-            } while (qte > article.getQteStock() || qte <= 0);
+            if (article == null || article.getQteStock() == 0) {
+                System.out.println("Article inexistant ou en rupture de stock. Veuillez recommencer.");
+            } else {
+                int qte;
+                do {
+                    System.out.println("Choisissez la quantité de l'article");
+                    qte = scanner.nextInt();
+                } while (qte > article.getQteStock() || qte <= 0);
 
-            double montantArticle = qte * article.getPrix();
-            dette.setMontant(dette.getMontant() + montantArticle);
-            dette.setMontantRestant(dette.getMontant());
+                double montantArticle = qte * article.getPrix();
+                article.setQteStock(article.getQteStock() - qte);
+                articleService.modifier(article);
+                Optional<Detail> existingDetail = dette.getDetails().stream()
+                        .filter(detail -> detail.getArticle().equals(article))
+                        .findFirst();
 
-            Detail detail = new Detail();
-            detail.setQteVendu(qte);
-            detail.setMontantVendu(montantArticle);
-            detail.setArticle(article);
-            detail.setDette(dette); 
-            detail.onPrePersist();
-            detailService.create(detail);
+                if (existingDetail.isPresent()) {
 
-            dette.addDetail(detail);
+                    Detail detail = existingDetail.get();
+                    int nouvelleQuantite = detail.getQteVendu() + qte;
+                    double nouveauMontantVendu = detail.getMontantVendu() + montantArticle;
 
-            System.out.println("Voulez-vous continuer ? ");
+                    detail.setQteVendu(nouvelleQuantite);
+                    detail.setMontantVendu(nouveauMontantVendu);
+                    detailService.modifier(detail);
+                } else {
+
+                    Detail detail = new Detail();
+                    detail.setQteVendu(qte);
+                    detail.setMontantVendu(montantArticle);
+                    detail.setArticle(article);
+                    detail.setDette(dette);
+                    detailService.create(detail);
+                    dette.addDetail(detail);
+
+                }
+
+                dette.setMontant(dette.getMontant() + montantArticle);
+
+                System.out.println("Voulez-vous continuer ? ");
+            }
         } while (askToContinue());
 
-        detteService.create(dette);
+        detteService.modifier(dette);
     }
 
     @Override
@@ -127,13 +150,12 @@ public class DetteView extends ViewImplement<Dette> implements IDetteView {
     public void filtrerDetteByEtat(Etat etat) {
         detteService.findAll()
                 .stream()
-                .filter(dette -> dette.getEtatD() == etat)
+                .filter(dette -> dette.getEtatD().equals(etat))
                 .forEach(System.out::println);
     }
 
     @Override
     public Dette getById() {
-        detteService.findAll().forEach(System.out::println);
         System.out.println("Entrez l'id de la dette : ");
         int id = scanner.nextInt();
         Dette dette = detteService.getById(id);
@@ -146,12 +168,60 @@ public class DetteView extends ViewImplement<Dette> implements IDetteView {
     }
 
     @Override
-    public void archiverDette() {
-        // listerDetteSolde();
-        // Dette dette = getById();
-        // if (dette != null && dette.getMontant()==dette.getMontantVerser()) {
-        // detteService.modifier(dette);
-        // }
+    public void traiterDette(Dette dette) {
+        if (dette.getEtatD().equals(Etat.encours)) {
+            int choix;
+            do {
+                System.out.println("1- Accepter");
+                System.out.println("2- Annuler");
+                choix = scanner.nextInt();
+            } while (choix <= 0 || choix > 2);
+
+            switch (choix) {
+                case 1:
+                    dette.setEtatD(Etat.accepter);
+                    detteService.modifier(dette);
+                    break;
+                case 2:
+                    dette.setEtatD(Etat.annuler);
+                    detteService.modifier(dette);
+                    break;
+                default:
+                    break;
+            }
+        } else {
+            System.out.println("cette dette est déjà acceptée ou annulée");
+            return;
+        }
+
     }
 
+    @Override
+    public void ListedetteOfClient(Client client) {
+        detteService.detteOfClient(client)
+                .stream()
+                .filter(dette -> dette.getClientD().equals(client) && dette.getEtatD().equals(Etat.accepter)
+                        && !dette.getMontantRestant().equals(0.0))
+                .forEach(System.out::println);
+    }
+
+    @Override
+    public void ListeDemandeDetteClient(Client client) {
+        detteService.detteOfClient(client)
+                .stream()
+                .filter(dette -> dette.getClientD().equals(client) && !dette.getEtatD().equals(Etat.accepter))
+                .forEach(System.out::println);
+        int choix;
+        do {
+            System.out.println("1- encours");
+            System.out.println("2- annuler");
+            choix = scanner.nextInt();
+        } while (choix <= 0 || choix > 2);
+        Etat etat = Etat.getEtatById(choix);
+        detteService.detteOfClient(client)
+                .stream()
+                .filter(dette -> dette.getClientD().equals(client) && !dette.getEtatD().equals(etat))
+                .forEach(System.out::println);
+
+    }
 }

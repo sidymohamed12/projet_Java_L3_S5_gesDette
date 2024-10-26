@@ -15,6 +15,7 @@ import com.dette.entities.Detail;
 import com.dette.entities.Dette;
 import com.dette.entities.Payement;
 import com.dette.entities.User;
+import com.dette.entities.UserConnect;
 import com.dette.repository.implement.ArticleRepository;
 import com.dette.repository.implement.ClientRepository;
 import com.dette.repository.implement.DetailRepository;
@@ -49,6 +50,7 @@ import com.dette.views.viewspe.IUserView;
 
 public class Main {
     private static Scanner scanner = new Scanner(System.in);
+
     public static void main(String[] args) {
 
         // ----------------------------- FACTORIES -----------------------------
@@ -86,14 +88,17 @@ public class Main {
         IPayementService payementService = (PayementService) payementServiceFactory.createService();
 
         // factory view
-        FactoryView<User> userViewFactory = new FactoryView<>(User.class, userService, null, null, null, null, null, scanner);
-        FactoryView<Client> clientViewFactory = new FactoryView<>(Client.class, userService, clientService, null, null, null,
+        FactoryView<User> userViewFactory = new FactoryView<>(User.class, userService, null, null, null, null, null,
+                scanner);
+        FactoryView<Client> clientViewFactory = new FactoryView<>(Client.class, userService, clientService, null, null,
+                null,
                 null, scanner);
         FactoryView<Article> articleViewFactory = new FactoryView<>(Article.class, null, null, articleService, null,
                 null, null, scanner);
         FactoryView<Dette> detteViewFactory = new FactoryView<>(Dette.class, null, null, articleService, detteService,
                 detailService, null, scanner);
-        FactoryView<Payement> payementViewFactory = new FactoryView<>(Payement.class, null, null, null, detteService, null,payementService, scanner);
+        FactoryView<Payement> payementViewFactory = new FactoryView<>(Payement.class, null, null, null, detteService,
+                null, payementService, scanner);
 
         // initialisation des VIEW pour chaque entité
         IUserView userView = (UserView) userViewFactory.createView();
@@ -102,34 +107,38 @@ public class Main {
         IDetteView detteView = (DetteView) detteViewFactory.createView();
         IPayementView payementView = (PayementView) payementViewFactory.createView();
 
-        // -----------------------------RECUPERATION USER CONNECT-----------------------------
+        // -----------------------------RECUPERATION USER CONNECT --------------------
 
         User userConnected = userView.authentification();
-
-        // ---------------------- DEROULEMENT POUR CHHAQUE ROLE si le user exist ----------------
+        UserConnect.setUserConnecte(userConnected);
+        // ---------------------- DEROULEMENT POUR CHHAQUE ROLE si le user exist
+        // ----------------
 
         if (userConnected != null) {
             switch (userConnected.getRole()) {
                 case admin -> {
                     System.out.println("Connecting to admin, WELCOME...");
-                    Controller adminController = new AdminController(scanner,clientView,userView,userService,articleService,articleView,detteView);
+                    Controller adminController = new AdminController(scanner, clientView, userView, userService,
+                            articleService, articleView);
                     adminController.execute();
                 }
-                case  boutiquier -> {
+                case boutiquier -> {
                     System.out.println("Connecting to boutiquier...");
-                    Controller bouController = new BoutiquierController(scanner,clientView,clientService,detteView, articleView,payementView, payementService);
+                    Controller bouController = new BoutiquierController(scanner, clientView, clientService, detteView,
+                            articleView, payementView, payementService, detteService);
                     bouController.execute();
                 }
                 case client -> {
                     showClientMenu();
-                } default -> {
+                }
+                default -> {
                     System.out.println("role not found");
                 }
             }
         }
     }
 
-    public static int showClientMenu(){
+    public static int showClientMenu() {
         System.out.println("1-  Lister ses dettes non soldées avec l'option de voir les articles ou les paiements");
         System.out.println("2-  Faire une demande de Dette");
         System.out.println("3-  Filtrer demandes de dette par état (En Cours, ou Annuler)");
@@ -137,6 +146,5 @@ public class Main {
         System.out.println("5- Quitter");
         return scanner.nextInt();
     }
-
 
 }

@@ -8,6 +8,7 @@ import com.dette.entities.Dette;
 import com.dette.entities.Payement;
 import com.dette.enums.Etat;
 import com.dette.services.servicespe.IClientService;
+import com.dette.services.servicespe.IDetteService;
 import com.dette.services.servicespe.IPayementService;
 import com.dette.views.viewspe.IArticleView;
 import com.dette.views.viewspe.IClientView;
@@ -19,6 +20,7 @@ public class BoutiquierController implements Controller {
     private IClientView clientView;
     private IClientService clientService;
     private IDetteView detteView;
+    private IDetteService detteService;
     private IArticleView articleView;
     private IPayementView payementView;
     private IPayementService payementService;
@@ -26,7 +28,7 @@ public class BoutiquierController implements Controller {
     public BoutiquierController(Scanner scanner,
             IClientView clientView, IClientService clientService,
             IDetteView detteView, IArticleView articleView,
-            IPayementView payementView, IPayementService payementService) {
+            IPayementView payementView, IPayementService payementService, IDetteService detteService) {
         this.scanner = scanner;
         this.clientView = clientView;
         this.clientService = clientService;
@@ -34,15 +36,16 @@ public class BoutiquierController implements Controller {
         this.articleView = articleView;
         this.payementView = payementView;
         this.payementService = payementService;
+        this.detteService = detteService;
     }
 
-    // 6 ET 7 NON FAIT & 8 non terminer
+    // 7 NON FAIT
 
     @Override
     public int menu() {
         System.out.println("1- Créer un client");
-        System.out.println("2- Lister les clients ayant un compte (avec cumul des montants dus) et pouvoir filtrer");
-        System.out.println("3- Lister les clients sans un compte");
+        System.out.println("2- Lister les clients ayant un compte (avec cumul des montants dus)");
+        System.out.println("3- Lister les clients sans compte");
         System.out.println("4- Rechercher un client par son téléphone");
         System.out.println("5- Créer une dette pour un client");
         System.out.println("6- Enregistrer un paiement pour une dette");
@@ -76,18 +79,42 @@ public class BoutiquierController implements Controller {
                     clientView.searchByTelephone();
                 }
                 case 5 -> {
-                    // clientService.findAll().forEach(System.out::println);
-                    System.out.println(" choisissez le client ");
                     scanner.nextLine();
                     Client client = clientView.getBy();
                     System.out.println(client);
-                    detteView.createDetteClient(client);
+                    Dette dette = detteView.saisie();
+                    dette.setClientD(client);
+                    client.addDettes(dette);
+                    detteService.create(dette);
+                    detteView.createDetteClient(dette);
                 }
                 case 6 -> {
                     Payement payement = payementView.saisie();
                     if (payement != null) {
                         payementService.create(payement);
-                    } 
+                    }
+                }
+                case 7 -> {
+                    scanner.nextLine();
+                    Client client = clientView.getBy();
+                    if (client == null) {
+                        System.out.println("Client non trouvé");
+                        break;
+                    } else {
+                        detteView.ListedetteOfClient(client);
+                    }
+
+                    Dette dette = detteView.getById();
+                    if (dette != null && dette.getClientD().getId().equals(client.getId())
+                            && !dette.getMontantRestant().equals(0.0) && dette.getEtatD().equals(Etat.accepter)) {
+                        System.out.println("-------------- ARTICLES -------------");
+                        articleView.listerArticleDette(dette);
+                        System.out.println("-------------- PAYEMENTS ------------");
+                        payementView.listePayementsDette(dette);
+                    } else {
+                        System.out.println("Aucune dette non-soldé disponible pour ce client avec ce id.");
+                    }
+
                 }
                 case 8 -> {
                     Etat etat = detteView.saisiEtat();
@@ -95,7 +122,11 @@ public class BoutiquierController implements Controller {
                     System.out.println("voir détail d'une dette ?");
                     if (detteView.askToContinue()) {
                         Dette dette = detteView.getById();
+                        System.out.println("-------------- ARTICLES -------------");
                         articleView.listerArticleDette(dette);
+                        System.out.println("-------------- PAYEMENTS ------------");
+                        payementView.listePayementsDette(dette);
+                        detteView.traiterDette(dette);
                     }
 
                 }

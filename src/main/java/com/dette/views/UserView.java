@@ -30,7 +30,6 @@ public class UserView extends ViewImplement<User> implements IUserView {
         } while (choix <= 0 || choix > 2);
         user.setRole(Role.values()[choix - 1]);
         user.setEtat(true);
-        user.onPrePersist();
         return user;
     }
 
@@ -73,7 +72,7 @@ public class UserView extends ViewImplement<User> implements IUserView {
             if (status) {
                 if (!user.getEtat()) {
                     user.setEtat(true);
-                    user.onPreUpdatet();
+                    user.onPreUpdated();
                     userService.modifier(user);
                 } else {
                     System.out.println("User déjà activé");
@@ -81,7 +80,7 @@ public class UserView extends ViewImplement<User> implements IUserView {
             } else {
                 if (user.getEtat()) {
                     user.setEtat(false);
-                    user.onPreUpdatet();
+                    user.onPreUpdated();
                     userService.modifier(user);
                 } else {
                     System.out.println("User déjà désactivé");

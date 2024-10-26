@@ -19,7 +19,7 @@ public class ArticleView extends ViewImplement<Article> implements IArticleView 
 
     @Override
     public Article saisie() {
-        
+
         Article article = new Article();
 
         System.out.println("Entrez le libelle de l'article : ");
@@ -35,8 +35,6 @@ public class ArticleView extends ViewImplement<Article> implements IArticleView 
         int size = String.valueOf(id).length();
         article.setRef("ART" + "0".repeat(size > 4 ? 0 : 4 - size) + id);
 
-        article.onPrePersist();
-        
         return article;
     }
 
@@ -67,8 +65,7 @@ public class ArticleView extends ViewImplement<Article> implements IArticleView 
                 System.out.println("Entrez la quantité à ajouter : ");
                 newQte = scanner.nextInt();
             } while (newQte <= 0);
-            article.setQteStock(article.getQteStock()+newQte);
-            article.onPreUpdatet();
+            article.setQteStock(article.getQteStock() + newQte);
             articleService.modifier(article);
         } else {
             System.out.println("Article introuvable");

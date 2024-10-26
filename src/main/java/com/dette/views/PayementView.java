@@ -15,6 +15,7 @@ public class PayementView extends ViewImplement<Payement> implements IPayementVi
 
     private IDetteService detteService;
     private IPayementService payementService;
+
     public PayementView(Scanner scanner, IPayementService payementService, IDetteService detteService) {
         super(scanner);
         this.detteService = detteService;
@@ -24,15 +25,19 @@ public class PayementView extends ViewImplement<Payement> implements IPayementVi
     @Override
     public Payement saisie() {
 
-        detteService.findAll().stream().filter(dette -> dette.getEtatD() == Etat.accepter).forEach(System.out::println);
+        detteService.findAll().stream()
+                .filter(dette -> dette.getEtatD() == Etat.accepter && !dette.getMontantRestant().equals(0.0))
+                .forEach(System.out::println);
         System.out.println("choisissez la dette à payer par id");
         Dette dette = detteService.getById(scanner.nextInt());
-        double montantRestant = dette.getMontant()-dette.getMontantVerser();
-        if (dette != null && dette.getEtatD() == Etat.accepter && dette.getMontant() != dette.getMontantVerser()) {
+        if (dette != null && dette.getEtatD() == Etat.accepter
+                && !dette.getMontant().equals(dette.getMontantVerser())) {
+
+            double montantRestant = dette.getMontant() - dette.getMontantVerser();
             Payement payement = new Payement();
             payement.setDate(LocalDateTime.now());
             System.out.println("Montant Restant : " + montantRestant);
-            Double verser ;
+            Double verser;
             do {
                 System.out.println("entrez le montant à payer : ");
                 verser = scanner.nextDouble();
@@ -42,21 +47,23 @@ public class PayementView extends ViewImplement<Payement> implements IPayementVi
 
             dette.addPayement(payement);
             dette.setMontantVerser(dette.getMontantVerser() + verser);
-            dette.onPreUpdatet();
+
+            if (dette.getMontantVerser() == dette.getMontant() || dette.getMontantRestant() == 0) {
+                dette.setArchiver(true);
+            }
+
             detteService.modifier(dette);
 
             payement.setDette(dette);
-            payement.onPrePersist();
             return payement;
         } else {
-            System.out.println("dette not confirmed");
+            System.out.println("dette non accepté/trouvé");
         }
         return null;
     }
 
     @Override
     public Payement getBy() {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getBy'");
     }
 

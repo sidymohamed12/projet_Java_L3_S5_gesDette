@@ -7,7 +7,6 @@ import com.dette.services.servicespe.IArticleService;
 import com.dette.services.servicespe.IUserService;
 import com.dette.views.viewspe.IArticleView;
 import com.dette.views.viewspe.IClientView;
-import com.dette.views.viewspe.IDetteView;
 import com.dette.views.viewspe.IUserView;
 
 public class AdminController implements Controller {
@@ -17,20 +16,17 @@ public class AdminController implements Controller {
     private IUserService userService;
     private IArticleService articleService;
     private IArticleView articleView;
-    private IDetteView detteView;
 
     public AdminController(Scanner scanner,
             IClientView clientView,
             IUserView userView, IUserService userService,
-            IArticleService articleService, IArticleView articleView,
-            IDetteView detteView) {
+            IArticleService articleService, IArticleView articleView) {
         this.scanner = scanner;
         this.clientView = clientView;
         this.userService = userService;
         this.userView = userView;
         this.articleService = articleService;
         this.articleView = articleView;
-        this.detteView = detteView;
     }
 
     @Override
@@ -45,8 +41,7 @@ public class AdminController implements Controller {
         System.out.println("8- Lister tous les articles");
         System.out.println("9- Lister article disponible");
         System.out.println("10- Mettre à jour la quantité d'un article");
-        System.out.println("11- Archiver les dettes soldées");
-        System.out.println("12- Quitter");
+        System.out.println("12- Deconnexion");
         return scanner.nextInt();
     }
 
@@ -59,46 +54,52 @@ public class AdminController implements Controller {
 
                     scanner.nextLine();
                     clientView.createUserForClient();
+                    break;
                 }
                 case 2 -> {
 
                     scanner.nextLine();
                     userService.create(userView.saisie());
+                    break;
                 }
                 case 3 -> {
 
                     scanner.nextLine();
                     userView.setEtatUser(true);
+                    break;
                 }
                 case 4 -> {
                     scanner.nextLine();
                     userView.setEtatUser(false);
+                    break;
                 }
                 case 5 -> {
                     userView.listerUserActif();
                 }
                 case 6 -> {
                     userView.listerUserbyRole();
+                    break;
                 }
                 case 7 -> {
-                    
-        scanner.nextLine();
+
+                    scanner.nextLine();
                     articleService.create(articleView.saisie());
+                    break;
                 }
                 case 8 -> {
                     articleService.findAll().forEach(System.out::println);
+                    break;
                 }
                 case 9 -> {
 
                     scanner.nextLine();
                     articleView.listerArticleDispo();
+                    break;
                 }
                 case 10 -> {
                     scanner.nextLine();
                     articleView.updateQteArticle();
-                }
-                case 11 -> {
-                    detteView.archiverDette();
+                    break;
                 }
                 case 12 -> {
                     System.out.println("Deconnexion fait ");

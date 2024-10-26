@@ -11,14 +11,14 @@ public class PayementService implements IPayementService {
 
     private PayementRepository payementRepository;
 
-    
     public PayementService(PayementRepository payementRepository) {
         this.payementRepository = payementRepository;
     }
 
     @Override
     public void create(Payement value) {
-       payementRepository.insert(value);
+        value.onPrePersist();
+        payementRepository.insert(value);
     }
 
     @Override
@@ -33,11 +33,12 @@ public class PayementService implements IPayementService {
 
     @Override
     public int count() {
-       return payementRepository.count();
+        return payementRepository.count();
     }
 
     @Override
     public void modifier(Payement payement) {
+        payement.onPreUpdated();
         payementRepository.update(payement);
     }
 
@@ -48,7 +49,7 @@ public class PayementService implements IPayementService {
 
     @Override
     public List<Payement> getPayementsDette(Dette dette) {
-        return payementRepository.payementsDette(dette);   
+        return payementRepository.payementsDette(dette);
     }
-    
+
 }

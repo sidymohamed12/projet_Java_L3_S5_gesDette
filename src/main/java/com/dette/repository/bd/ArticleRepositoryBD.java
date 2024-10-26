@@ -13,18 +13,21 @@ import com.dette.repository.implement.ArticleRepository;
 public class ArticleRepositoryBD extends RepositoryBDImpl<Article> implements ArticleRepository {
 
     public ArticleRepositoryBD() {
-        super(null,null,null,null);
+        super(null, null, null, null);
         clazz = Article.class;
         tableName = "article";
         colomnSelectBy = "ref";
-        colones = new String[] { "libelle", "ref", "qteStock", "prix", "createdAt", "updatedAt" };
+        colones = new String[] { "libelle", "ref", "qteStock", "prix", "createdAt", "updatedAt", "createdBy",
+                "updatedBy" };
     }
 
     @Override
     public List<Article> articleOfDette(Dette dette) {
-         List<Article> articles = new ArrayList<>();
+        List<Article> articles = new ArrayList<>();
         try {
-            String sql = String.format("SELECT DISTINCT a.*, dt.qteVendu FROM detaildette dt JOIN article a ON a.id = dt.articleId WHERE dt.detteId = %d", dette.getId());
+            String sql = String.format(
+                    "SELECT DISTINCT a.* FROM detaildette dt JOIN article a ON a.id = dt.articleId WHERE dt.detteId = %d",
+                    dette.getId());
             ResultSet res = executeQuery(sql);
             while (res.next()) {
                 articles.add(converToObjet(res, Article.class));
@@ -34,6 +37,5 @@ public class ArticleRepositoryBD extends RepositoryBDImpl<Article> implements Ar
         }
         return articles;
     }
-
 
 }

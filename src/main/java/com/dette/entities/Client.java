@@ -40,13 +40,11 @@ public class Client extends AbstractEntity {
     public void addDettes(Dette dette) {
         dettes.add(dette);
     }
-    
+
     @Override
     public String toString() {
         return "Client [id=" + id + ", surnom=" + surnom + ", telephone=" + telephone + ", adresse=" + adresse
                 + ", user=" + user + "]";
     }
 
-    // @Transient POUR NE PAS PERSISTER EN BD
-    // create-drop
 }

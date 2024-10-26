@@ -13,7 +13,8 @@ public class UserRepositoryBD extends RepositoryBDImpl<User> implements UserRepo
         clazz = User.class;
         tableName = "users";
         colomnSelectBy = "login";
-        colones = new String[] { "login", "password", "roleId", "etat", "createdAt", "updatedAt" };
+        colones = new String[] { "login", "password", "roleId", "etat", "createdAt", "updatedAt", "createdBy",
+                "updatedBy" };
     }
 
     @Override

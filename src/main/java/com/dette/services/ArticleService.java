@@ -17,6 +17,7 @@ public class ArticleService implements IArticleService {
 
     @Override
     public void create(Article value) {
+        value.onPrePersist();
         articleRepository.insert(value);
     }
 
@@ -38,12 +39,13 @@ public class ArticleService implements IArticleService {
 
     @Override
     public void modifier(Article article) {
+        article.onPreUpdated();
         articleRepository.update(article);
     }
 
     @Override
     public List<Article> getArticlesDette(Dette dette) {
-       return articleRepository.articleOfDette(dette);
+        return articleRepository.articleOfDette(dette);
     }
 
 }

@@ -11,15 +11,17 @@ public class DetailRepositoryBD extends RepositoryBDImpl<Detail> implements Deta
         clazz = Detail.class;
         tableName = "detaildette";
         colomnSelectBy = null;
-        colones = new String[] { "qteVendu", "montantVendu", "articleId", "detteId", "createdAt", "updatedAt" };
+        colones = new String[] { "qteVendu", "montantVendu", "articleId", "detteId", "createdAt", "updatedAt",
+                "createdBy", "updatedBy" };
     }
 
     public DetailRepositoryBD() {
-        super(null, null,new ArticleRepositoryBD(), null);
+        super(null, null, new ArticleRepositoryBD(), null);
         clazz = Detail.class;
         tableName = "detaildette";
         colomnSelectBy = null;
-        colones = new String[] { "qteVendu", "montantVendu", "articleId", "detteId", "createdAt", "updatedAt" };
+        colones = new String[] { "qteVendu", "montantVendu", "articleId", "detteId", "createdAt", "updatedAt",
+                "createdBy", "updatedBy" };
     }
-    
+
 }

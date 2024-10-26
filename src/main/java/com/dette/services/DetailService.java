@@ -6,21 +6,23 @@ import com.dette.entities.Detail;
 import com.dette.repository.implement.DetailRepository;
 import com.dette.services.servicespe.IDetailService;
 
-public class DetailService implements IDetailService{
+public class DetailService implements IDetailService {
 
     private DetailRepository detailRepository;
+
     public DetailService(DetailRepository detailRepository) {
         this.detailRepository = detailRepository;
     }
 
     @Override
     public void create(Detail value) {
+        value.onPrePersist();
         detailRepository.insert(value);
     }
 
     @Override
     public List<Detail> findAll() {
-       return detailRepository.selectAll();
+        return detailRepository.selectAll();
     }
 
     @Override
@@ -30,7 +32,13 @@ public class DetailService implements IDetailService{
 
     @Override
     public int count() {
-       return detailRepository.count();
+        return detailRepository.count();
     }
-    
+
+    @Override
+    public void modifier(Detail detail) {
+        detail.onPreUpdated();
+        detailRepository.update(detail);
+    }
+
 }

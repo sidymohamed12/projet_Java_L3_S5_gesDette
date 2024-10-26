@@ -16,6 +16,7 @@ import com.dette.entities.Article;
 import com.dette.entities.Client;
 import com.dette.entities.Dette;
 import com.dette.entities.User;
+import com.dette.entities.UserConnect;
 import com.dette.enums.Etat;
 import com.dette.enums.Role;
 import com.dette.repository.bd.ArticleRepositoryBD;
@@ -39,13 +40,14 @@ public class DataSourceImpl<T> implements DataSource<T> {
     protected UserRepository userRepository;
 
     public DataSourceImpl(UserRepositoryBD userRepository, ClientRepositoryBD clientRepository,
-                          ArticleRepositoryBD articleRepositoryBD, DetteRepositoryBD detteRepositoryBD) {
+            ArticleRepositoryBD articleRepositoryBD, DetteRepositoryBD detteRepositoryBD) {
         this.userRepository = userRepository;
         this.clientRepository = clientRepository;
         this.articleRepository = articleRepositoryBD;
         this.detteRepository = detteRepositoryBD;
 
     }
+
     @Override
     public void connexion() {
         try {
@@ -145,8 +147,7 @@ public class DataSourceImpl<T> implements DataSource<T> {
         Class<?> superClass = clazz.getSuperclass(); // Classe parente
 
         if (superClass != null) {
-            Field[] superFields = getAllFields(superClass); // Appel récursif pour récupérer les champs de la classe
-                                                            // parente
+            Field[] superFields = getAllFields(superClass);
             Field[] combinedFields = new Field[fields.length + superFields.length];
             System.arraycopy(fields, 0, combinedFields, 0, fields.length);
             System.arraycopy(superFields, 0, combinedFields, fields.length, superFields.length);
@@ -166,7 +167,7 @@ public class DataSourceImpl<T> implements DataSource<T> {
         for (Field field : fields) {
             field.setAccessible(true);
             try {
-                if (!field.getName().equals("id") 
+                if (!field.getName().equals("id")
                         && !field.getName().equals("client")
                         && !field.getName().equals("details")
                         && !field.getName().equals("payements")
@@ -185,14 +186,18 @@ public class DataSourceImpl<T> implements DataSource<T> {
                     } else if (fieldValue instanceof LocalDateTime) {
                         ps.setTimestamp(index, Timestamp.valueOf((LocalDateTime) fieldValue));
                     } else if (fieldValue instanceof Enum) {
-                        ps.setInt(index, ((Enum<?>) fieldValue).ordinal()+1);
+                        ps.setInt(index, ((Enum<?>) fieldValue).ordinal() + 1);
                     } else if (field.getName().equals("user")) {
                         User user = (User) field.get(value);
                         if (user != null && user.getId() != 0) {
-                            ps.setInt(index, detteRepository.count()+1);
+                            ps.setInt(index, user.getId());
                         } else {
                             ps.setNull(index, Types.INTEGER);
                         }
+                    } else if (field.getName().equals("updatedBy")) {
+                        ps.setInt(index, UserConnect.getUserConnecte().getId());
+                    } else if (field.getName().equals("createdBy")) {
+                        ps.setInt(index, UserConnect.getUserConnecte().getId());
                     } else if (field.getName().equals("dette")) {
                         Dette dette = (Dette) field.get(value);
                         if (dette != null && dette.getId() != null && dette.getId() != 0) {
@@ -200,7 +205,7 @@ public class DataSourceImpl<T> implements DataSource<T> {
                         } else {
                             ps.setNull(index, Types.INTEGER);
                         }
-                    }  else if (field.getName().equals("article")) {
+                    } else if (field.getName().equals("article")) {
                         Article article = (Article) field.get(value);
                         if (article != null && article.getId() != 0) {
                             ps.setInt(index, article.getId());
@@ -304,13 +309,15 @@ public class DataSourceImpl<T> implements DataSource<T> {
                         field.set(entity, articleRepository.selectById(rs.getInt("articleId")));
                     } else if (field.getName().equals("dette")) {
                         field.set(entity, detteRepository.selectById(rs.getInt("detteId")));
-                    } 
+                    }
                 } catch (SQLException e) {
+                    // System.err.println("Erreur SQL pour le champ : " + field.getName());
+                    // e.printStackTrace();
                     continue;
                 }
             }
         } catch (Exception e) {
-            throw new RuntimeException("Erreur lors de la conversion de l'objet", e );
+            throw new RuntimeException("Erreur lors de la conversion de l'objet", e);
         }
         return entity;
     }

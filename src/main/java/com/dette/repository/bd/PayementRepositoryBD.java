@@ -10,23 +10,23 @@ import com.dette.entities.Dette;
 import com.dette.entities.Payement;
 import com.dette.repository.implement.PayementRepository;
 
-public class PayementRepositoryBD  extends RepositoryBDImpl<Payement> implements PayementRepository{
+public class PayementRepositoryBD extends RepositoryBDImpl<Payement> implements PayementRepository {
 
     public PayementRepositoryBD(DetteRepositoryBD detteRepositoryBD) {
-        
+
         super(null, null, null, detteRepositoryBD);
         clazz = Payement.class;
         tableName = "payement";
         colomnSelectBy = null;
-        colones = new String[] { "date", "detteId", "montant", "createdAt", "updatedAt" };
-    
+        colones = new String[] { "date", "detteId", "montant", "createdAt", "updatedAt", "createdBy", "updatedBy" };
+
     }
 
     @Override
     public List<Payement> payementsDette(Dette dette) {
         List<Payement> payements = new ArrayList<>();
         try {
-            String sql = generateSql("SELECT", tableName, colones, "detteId", (int)dette.getId());
+            String sql = generateSql("SELECT", tableName, colones, "detteId", (int) dette.getId());
             ResultSet res = executeQuery(sql);
             while (res.next()) {
                 payements.add(converToObjet(res, Payement.class));
@@ -36,6 +36,5 @@ public class PayementRepositoryBD  extends RepositoryBDImpl<Payement> implements
         }
         return payements;
     }
-    
 
 }

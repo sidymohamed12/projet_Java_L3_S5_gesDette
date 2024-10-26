@@ -7,10 +7,20 @@ import com.dette.enums.Etat;
 
 public interface IDetteView extends View<Dette> {
     Etat saisiEtat();
+
     void listerDetteNonSolde();
+
     void listerDetteSolde();
+
     void filtrerDetteByEtat(Etat etat);
-    void createDetteClient(Client client);
+
+    void createDetteClient(Dette dette);
+
     Dette getById();
-    void archiverDette();
+
+    void traiterDette(Dette dette);
+
+    void ListedetteOfClient(Client client);
+
+    void ListeDemandeDetteClient(Client client);
 }
