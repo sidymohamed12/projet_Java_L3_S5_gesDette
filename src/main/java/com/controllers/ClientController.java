@@ -7,6 +7,7 @@ import com.dette.entities.Client;
 import com.dette.entities.Dette;
 import com.dette.entities.UserConnect;
 import com.dette.enums.Etat;
+import com.dette.services.servicespe.IClientService;
 import com.dette.services.servicespe.IDetteService;
 import com.dette.views.viewspe.IArticleView;
 import com.dette.views.viewspe.IDetteView;
@@ -18,20 +19,24 @@ public class ClientController implements Controller {
     private IDetteService detteService;
     private IArticleView articleView;
     private IPayementView payementView;
+    private IClientService clientService;
+    private Client client;
 
     public ClientController(Scanner scanner, IDetteView detteView,
             IDetteService detteService, IArticleView articleView,
-            IPayementView payementView) {
+            IPayementView payementView, IClientService clientService) {
         this.scanner = scanner;
         this.detteService = detteService;
         this.detteView = detteView;
         this.articleView = articleView;
         this.payementView = payementView;
+        this.clientService = clientService;
+        this.client = this.clientService.getClientByUser(UserConnect.getUserConnecte());
     }
 
     @Override
     public int menu() {
-        System.out.println("1-  Lister ses dettes non soldées avec l’option de voir les articles ou les paiements");
+        System.out.println("1-  Lister ses dettes non soldées avec l'option de voir les articles ou les paiements");
         System.out.println("2-  Faire une demande de Dette");
         System.out.println("3-  Filtrer demandes de dette par état(En Cours, ou Annuler)");
         System.out.println("4-  Envoyer une relance pour une demande de dette annuler");
@@ -45,13 +50,13 @@ public class ClientController implements Controller {
         do {
             switch (choix = menu()) {
                 case 1 -> {
-                    Client client = UserConnect.getUserConnecte().getClient();
                     detteView.ListedetteOfClient(client);
                     System.out.println("voir détail d'une dette ?");
                     if (detteView.askToContinue()) {
                         Dette dette = detteView.getById();
                         if (dette != null && dette.getClientD().getId().equals(client.getId())
-                                && !dette.getMontantRestant().equals(0.0) && dette.getEtatD().equals(Etat.accepter)) {
+                                && !dette.getMontantRestant().equals(0.0) &&
+                                dette.getEtatD().equals(Etat.accepter)) {
                             System.out.println("-------------- ARTICLES -------------");
                             articleView.listerArticleDette(dette);
                             System.out.println("-------------- PAYEMENTS ------------");
@@ -60,11 +65,9 @@ public class ClientController implements Controller {
                             System.out.println("Aucune dette non-soldé disponible pour vous avec ce id.");
                         }
                     }
-
                 }
                 case 2 -> {
                     scanner.nextLine();
-                    Client client = UserConnect.getUserConnecte().getClient();
                     System.out.println(client);
                     Dette dette = detteView.saisie();
                     dette.setClientD(client);
@@ -73,9 +76,7 @@ public class ClientController implements Controller {
                     detteView.createDetteClient(dette);
                 }
                 case 3 -> {
-                    Client client = UserConnect.getUserConnecte().getClient();
                     detteView.ListeDemandeDetteClient(client);
-
                 }
                 case 4 -> {
 

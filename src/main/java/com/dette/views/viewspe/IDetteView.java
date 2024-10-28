@@ -23,4 +23,5 @@ public interface IDetteView extends View<Dette> {
     void ListedetteOfClient(Client client);
 
     void ListeDemandeDetteClient(Client client);
+
 }

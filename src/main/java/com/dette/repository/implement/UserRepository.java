@@ -15,4 +15,5 @@ public interface UserRepository extends Repository<User> {
     boolean verifyPassword(String plainPassword, String hashedPassword);
 
     User authentification(String login, String password);
+
 }

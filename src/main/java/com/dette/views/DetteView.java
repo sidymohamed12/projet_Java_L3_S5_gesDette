@@ -1,7 +1,6 @@
 package com.dette.views;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
@@ -220,8 +219,9 @@ public class DetteView extends ViewImplement<Dette> implements IDetteView {
         Etat etat = Etat.getEtatById(choix);
         detteService.detteOfClient(client)
                 .stream()
-                .filter(dette -> dette.getClientD().equals(client) && !dette.getEtatD().equals(etat))
+                .filter(dette -> dette.getClientD().equals(client) && dette.getEtatD().equals(etat))
                 .forEach(System.out::println);
 
     }
+
 }

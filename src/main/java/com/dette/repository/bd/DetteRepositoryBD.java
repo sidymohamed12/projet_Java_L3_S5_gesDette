@@ -8,12 +8,9 @@ import java.util.List;
 import com.dette.core.database.implement.RepositoryBDImpl;
 import com.dette.entities.Dette;
 import com.dette.entities.Client;
-import com.dette.entities.Detail;
 import com.dette.repository.implement.DetteRepository;
 
 public class DetteRepositoryBD extends RepositoryBDImpl<Dette> implements DetteRepository {
-
-    private DetailRepositoryBD detailRepository = new DetailRepositoryBD();
 
     public DetteRepositoryBD(ClientRepositoryBD clientRepositoryBD) {
         super(null, clientRepositoryBD, null, null);

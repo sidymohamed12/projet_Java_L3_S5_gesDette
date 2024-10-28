@@ -4,6 +4,7 @@ import java.util.Scanner;
 
 import com.controllers.AdminController;
 import com.controllers.BoutiquierController;
+import com.controllers.ClientController;
 import com.dette.core.Controller;
 import com.dette.core.factory.Impl.FactoryRepo;
 import com.dette.core.factory.Impl.FactoryService;
@@ -129,7 +130,10 @@ public class Main {
                     bouController.execute();
                 }
                 case client -> {
-                    showClientMenu();
+                    System.out.println("Connecting to Client...");
+                    Controller clientController = new ClientController(scanner, detteView, detteService, articleView,
+                            payementView, clientService);
+                    clientController.execute();
                 }
                 default -> {
                     System.out.println("role not found");
